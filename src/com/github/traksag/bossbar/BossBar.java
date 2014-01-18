@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import com.github.TraksAG.ckessentials.util.Reflection;
+import com.github.TraksAG.ckessentials.util.nms.BossBar.FakeDragon;
  
 public class BossBar {
 
@@ -31,26 +32,22 @@ public class BossBar {
         if(dragonMap.containsKey(player.getName()) &! reset) {
             fd = dragonMap.get(player.getName());
         }
+        // create a new dragon if needed or if reset equals true
         else {
-            fd = new FakeDragon(text, player.getLocation(), percent);
+        	// spawn it 400 blocks above the player so you don't see it die at 0 health
+            fd = new FakeDragon(text, player.getLocation().add(0, 400, 0), percent);
             Object mobPacket = fd.getSpawnPacket();
             Reflection.sendPacket(player, mobPacket);
             dragonMap.put(player.getName(), fd);
         }
-     
-        if(text == "") {
-            Object destroyPacket = fd.getDestroyPacket();
-            Reflection.sendPacket(player, destroyPacket);
-            dragonMap.remove(player.getName());
-        }
-        else {
-            fd.setName(text);
-            fd.setHealth(percent);
-            Object metaPacket = fd.getMetaPacket(fd.getWatcher());
-            Object teleportPacket = fd.getTeleportPacket(player.getLocation().add(0 , 400 , 0));
-            Reflection.sendPacket(player, metaPacket);
-            Reflection.sendPacket(player, teleportPacket);
-        }
+        
+        // set the status of the dragon and send the package to the player
+        fd.setName(text);
+        fd.setHealth(percent);
+        Object metaPacket = fd.getMetaPacket(fd.getWatcher());
+        Object teleportPacket = fd.getTeleportPacket(player.getLocation().add(0 , 400 , 0));
+        Reflection.sendPacket(player, metaPacket);
+        Reflection.sendPacket(player, teleportPacket);
     }
     
     /*
@@ -159,12 +156,12 @@ public class BossBar {
         }
      
         public Object getDestroyPacket() throws SecurityException, InstantiationException, IllegalAccessException, 
-        		InvocationTargetException, NoSuchMethodException, NoSuchFieldException {
-        	// get the destroy entity packet class
-            Class<?> PacketPlayOutEntityDestroy = Reflection.getNMSClass("PacketPlayOutEntityDestroy");
-            // create a new instance of the class
-            Object packet = PacketPlayOutEntityDestroy.getConstructor(new Class<?>[]{int.class}).newInstance(id);
-            return packet;
+				InvocationTargetException, NoSuchMethodException, NoSuchFieldException {
+			// get the destroy entity packet class
+		    Class<?> PacketPlayOutEntityDestroy = Reflection.getNMSClass("PacketPlayOutEntityDestroy");
+		    // create a new instance of the class 
+		    Object packet = PacketPlayOutEntityDestroy.getConstructor(new Class<?>[]{int[].class}).newInstance(new int[]{id});
+		    return packet;
         }
         
         public Object getMetaPacket(Object watcher) throws SecurityException, InstantiationException, 
