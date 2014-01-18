@@ -8,9 +8,6 @@ import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import com.github.TraksAG.ckessentials.util.Reflection;
-import com.github.TraksAG.ckessentials.util.nms.BossBar.FakeDragon;
  
 public class BossBar {
 
